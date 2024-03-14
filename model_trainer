@@ -1,0 +1,44 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.feature_extraction.text import TfidfVectorizer
+import joblib  # Correct import statement for joblib
+
+# Load the dataset
+dataset_file = "massive_mental_health_dataset.csv"
+data = pd.read_csv(dataset_file)
+
+# Preprocessing: Convert "Response (True/False)" column to binary labels (0 for False, 1 for True)
+data['Response (True/False)'] = data['Response (True/False)'].astype(int)
+
+# Separate features (questions) and target variable (responses)
+X = data['Question']
+y = data['Response (True/False)']
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature extraction (for demonstration, using TF-IDF vectorization)
+vectorizer = TfidfVectorizer(max_features=1000)
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+
+# Train the RandomForest classifier
+rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_classifier.fit(X_train_vectorized, y_train)
+
+# Save the trained model to a .pkl file
+joblib.dump(rf_classifier, 'random_forest_model.pkl')
+
+print("Trained model saved to random_forest_model.pkl")
+
+# Predictions on the test set
+y_pred = rf_classifier.predict(X_test_vectorized)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}")
+
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))

@@ -1,0 +1,116 @@
+import tkinter as tk
+from tkinter import messagebox
+from PIL import ImageTk, Image  # Import ImageTk and Image from PIL
+
+import pyttsx3
+import speech_recognition as sr
+import joblib
+from plyer import notification
+
+def notify(title, message):
+    notification.notify(title=title,message=message,app_name="P.U.L.S.E. - Psychiatric Understanding and Learning System Evaluation",timeout=5)
+notify("P.U.L.S.E.","is running")
+
+class MentalHealthApp:
+    def __init__(self, master):
+        self.master = master
+        master.title("P.U.L.S.E. - Psychiatric Understanding and Learning System Evaluation")
+
+        # Load the background image
+        self.background_image = Image.open("background.jpg")
+        self.background_photo = ImageTk.PhotoImage(self.background_image)
+        
+        # Create a label to display the background image
+        self.background_label = tk.Label(master, image=self.background_photo)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        self.label = tk.Label(master, text="Welcome to the P.U.L.S.E. Mental Health Assessment", font=("Helvetica", 25), bg="#ffffff",fg="black")
+        self.label.pack(pady=(20,5))
+
+        self.button = tk.Button(master, text="Start Assessment", command=self.start_assessment, bg="#007bff", fg="white", font=("Helvetica", 25))
+        self.button.pack(pady=250)
+
+    def start_assessment(self):
+        self.label.config(text="Assessment in progress...")
+        responses = list(self.ask_questions())
+
+        if any(responses):
+            result = ""
+            for i in range(len(responses)):
+                if responses[i]:
+                    result += comments[i] + "\n"
+            messagebox.showinfo("Assessment Result", result)
+        else:
+            messagebox.showinfo("Assessment Result", "It seems you didn't indicate any symptoms. Please consult with a healthcare professional for further evaluation.")
+
+        self.label.config(text="Welcome to the Mental Health Assessment")
+
+    def ask_questions(self):
+        for question in questions:
+            speak(question)
+            user_response = recognize_speech()
+            while user_response not in ['yes', 'no']:
+                speak("Sorry, I didn't understand your response. Please say 'yes' or 'no'.")
+                user_response = recognize_speech()
+
+            yield user_response == 'yes'
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+def recognize_speech():
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
+
+    try:
+        user_response = recognizer.recognize_google(audio)
+        return user_response.lower()
+    except sr.UnknownValueError:
+        print("Sorry, I couldn't understand what you said.")
+    except sr.RequestError:
+        print("Sorry, there was an error with the speech recognition service.")
+    return ""
+
+# Load the trained model and define questions and comments
+model = joblib.load('random_forest_model.pkl')
+
+questions = [
+    "Do you worry a lot, even when things seem okay?",
+    "Do you often feel really sad or hopeless?",
+    "Do your feelings go from super happy to really down?",
+    "Do you sometimes see or hear things that aren't there, or feel like your thoughts are confused?",
+    "Do you have thoughts that keep coming back and bother you a lot?",
+    "Do you have bad memories that come back and make you feel scared or upset?",
+    "Do you find it hard to pay attention or sit still?",
+    "Have you had big changes in how much you eat, like eating way less or way more than usual?",
+    "Do your feelings change a lot, and do you have trouble getting along with people?",
+    "Do you have trouble understanding social stuff or talking to others?",
+    "Do you ever feel like you're not really yourself or like things aren't real?",
+]
+
+comments = [
+    "You may be experiencing generalized anxiety disorder.",
+    "You may be experiencing depression.",
+    "You may be experiencing mood swings, which could be a symptom of bipolar disorder.",
+    "You may be experiencing hallucinations or delusions, which could be symptoms of psychosis.",
+    "You may be experiencing obsessive-compulsive disorder (OCD) or intrusive thoughts.",
+    "You may be experiencing post-traumatic stress disorder (PTSD) or trauma-related symptoms.",
+    "You may be experiencing attention-deficit/hyperactivity disorder (ADHD).",
+    "You may be experiencing an eating disorder, such as anorexia or binge eating disorder.",
+    "You may be experiencing emotional instability, which could be a symptom of a personality disorder.",
+    "You may be experiencing social anxiety disorder or difficulty with social interactions.",
+    "You may be experiencing dissociation or depersonalization.",
+]
+
+# Initialize text-to-speech engine and speech recognizer
+engine = pyttsx3.init()
+recognizer = sr.Recognizer()
+
+root = tk.Tk()
+
+app = MentalHealthApp(root)
+root.state('zoomed')
+root.mainloop()

@@ -1,0 +1,62 @@
+import csv
+import random
+
+# Define a list of true/false questions related to mental health
+questions = [
+    "Do you worry a lot, even when things seem okay?",
+    "Do you often feel really sad or hopeless?",
+    "Do your feelings go from super happy to really down?",
+    "Do you sometimes see or hear things that aren't there, or feel like your thoughts are confused?",
+    "Do you have thoughts that keep coming back and bother you a lot?",
+    "Do you have bad memories that come back and make you feel scared or upset?",
+    "Do you find it hard to pay attention or sit still?",
+    "Have you had big changes in how much you eat, like eating way less or way more than usual?",
+    "Do your feelings change a lot, and do you have trouble getting along with people?",
+    "Do you have trouble understanding social stuff or talking to others?",
+    "Do you ever feel like you're not really yourself or like things aren't real?",
+]
+
+# Define comments for each question
+comments = [
+    "You may be experiencing generalized anxiety disorder.",
+    "You may be experiencing depression.",
+    "You may be experiencing mood swings, which could be a symptom of bipolar disorder.",
+    "You may be experiencing hallucinations or delusions, which could be symptoms of psychosis.",
+    "You may be experiencing obsessive-compulsive disorder (OCD) or intrusive thoughts.",
+    "You may be experiencing post-traumatic stress disorder (PTSD) or trauma-related symptoms.",
+    "You may be experiencing attention-deficit/hyperactivity disorder (ADHD).",
+    "You may be experiencing an eating disorder, such as anorexia or binge eating disorder.",
+    "You may be experiencing emotional instability, which could be a symptom of a personality disorder.",
+    "You may be experiencing social anxiety disorder or difficulty with social interactions.",
+    "You may be experiencing dissociation or depersonalization.",
+]
+
+
+# Function to create the massive CSV dataset
+def create_massive_dataset(filename, questions, comments, num_rows=100000):
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        
+        # Write header row
+        writer.writerow(['Question', 'Response (True/False)', 'Response (Commented)'])
+        
+        # Write random true/false questions with responses and comments
+        for _ in range(num_rows):
+            question_index = random.randint(0, len(questions) - 1)
+            question = questions[question_index]
+            outcome = random.choice([True, False])  # Randomly choose True or False
+            response = outcome
+            comment = comments[question_index] if outcome else ""
+            
+            writer.writerow([question, response, comment])
+
+    print(f"Massive dataset created successfully: {filename}")
+
+# Main function to create the massive dataset
+def main():
+    filename = "massive_mental_health_dataset.csv"
+    create_massive_dataset(filename, questions, comments)
+
+# Run the main function
+if __name__ == "__main__":
+    main()
